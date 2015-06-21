@@ -7,7 +7,7 @@ from django.template.defaultfilters import slugify as default_slugify
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
-
+from unidecode import unidecode
 from taggit.utils import _get_field
 
 try:
@@ -65,9 +65,9 @@ class TagBase(models.Model):
             # Now try to find existing slugs with similar names
             slugs = set(Tag.objects.filter(slug__startswith=self.slug)
                                    .values_list('slug', flat=True))
-            i = 1
+            i = 0
             while True:
-                slug = self.slugify(self.name, i)
+                slug = self.slugify(unidecode(self.name), i)
                 if slug not in slugs:
                     self.slug = slug
                     # We purposely ignore concurrecny issues here for now.
@@ -80,7 +80,8 @@ class TagBase(models.Model):
     def slugify(self, tag, i=None):
         slug = default_slugify(tag)
         if i is not None:
-            slug += "_%d" % i
+            if i > 0:
+                slug += "_%d" % i
         return slug
 
 
