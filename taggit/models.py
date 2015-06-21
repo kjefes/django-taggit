@@ -46,7 +46,7 @@ class TagBase(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:
-            self.slug = self.slugify(self.name)
+            self.slug = self.slugify(unidecode(self.name))
             from django.db import router
             using = kwargs.get("using") or router.db_for_write(
                 type(self), instance=self)
